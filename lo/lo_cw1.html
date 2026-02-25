@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Algorytmika & C++ | Klasa 1 LMS</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d0f;
+  --bg2: #0e1416;
+  --panel: #111820;
+  --panel2: #162028;
+  --border: #1e3040;
+  --border-bright: #2a4a60;
+  --green: #00ff88;
+  --green-dim: #00cc6a;
+  --cyan: #00d4ff;
+  --cyan-dim: #0099bb;
+  --orange: #ff6b2b;
+  --orange-dim: #cc4a1a;
+  --red: #ff3d5a;
+  --yellow: #ffd60a;
+  --text: #c8d8e8;
+  --text-dim: #5a7a90;
+  --text-bright: #e8f4ff;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Orbitron', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Scanlines overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Grid background */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; }
+.screen.active { display: block; animation: screenIn 0.4s ease; }
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── HEADER BAR ─── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+.topbar-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+.topbar-title { margin-left: 8px; color: var(--text-dim); letter-spacing: 1px; }
+
+/* ─── START SCREEN ─── */
+.start-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 40px 36px 44px;
+}
+
+.prompt-line {
+  color: var(--green);
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.big-title {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+}
+
+.big-title span { color: var(--cyan); }
+
+.sub {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 540px) { .modules-grid { grid-template-columns: 1fr; } }
+
+.module-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s;
+}
+
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.module-card.algo::before { background: linear-gradient(90deg, var(--cyan), transparent); }
+.module-card.cpp::before  { background: linear-gradient(90deg, var(--orange), transparent); }
+.module-card:hover { border-color: var(--border-bright); }
+
+.module-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.module-card.algo .module-tag { color: var(--cyan); }
+.module-card.cpp  .module-tag { color: var(--orange); }
+
+.module-title {
+  font-family: var(--display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+
+.module-desc { font-size: 0.72rem; color: var(--text-dim); line-height: 1.5; }
+
+.stats-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-val { font-family: var(--display); font-size: 1.4rem; font-weight: 700; color: var(--cyan); }
+
+.btn-start {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 14px 40px;
+  background: transparent;
+  border: 2px solid var(--green);
+  color: var(--green);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-start::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--green);
+  transform: translateX(-100%);
+  transition: transform 0.2s;
+  z-index: -1;
+}
+
+.btn-start:hover {
+  color: var(--bg);
+  box-shadow: 0 0 24px rgba(0,255,136,0.4);
+}
+
+.btn-start:hover::before { transform: translateX(0); }
+
+/* ─── QUIZ SCREEN ─── */
+.quiz-header {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 0 0;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.q-module-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.q-module-tag.algo { color: var(--cyan); border-color: var(--cyan); }
+.q-module-tag.cpp  { color: var(--orange); border-color: var(--orange); }
+
+.progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.score-badge {
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--yellow);
+  white-space: nowrap;
+}
+
+.quiz-body {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 1px solid var(--border-bright);
+  padding: 28px 28px 32px;
+}
+
+.q-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.q-num { color: var(--green); font-weight: 700; }
+
+/* Code block for question */
+.q-code-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.q-code-wrap.visible { display: block; }
+
+.code-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.code-block {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Syntax highlighting */
+.kw  { color: #ff79c6; }
+.fn  { color: #50fa7b; }
+.tp  { color: #8be9fd; }
+.nm  { color: #bd93f9; }
+.st  { color: #f1fa8c; }
+.cm  { color: #6272a4; font-style: italic; }
+.op  { color: #ff6b2b; }
+.nu  { color: #bd93f9; }
+
+.q-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-bright);
+  line-height: 1.65;
+  margin-bottom: 24px;
+  font-family: var(--mono);
+}
+
+/* Answers */
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ans-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 13px 16px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s;
+  line-height: 1.5;
+}
+
+.ans-btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+  color: var(--text-bright);
+  background: rgba(0,212,255,0.04);
+}
+
+.ans-key {
+  width: 24px; height: 24px;
+  min-width: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--border-bright);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+
+.ans-btn:hover:not(:disabled) .ans-key {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.ans-btn.correct {
+  border-color: var(--green);
+  background: rgba(0,255,136,0.06);
+  animation: flash-green 0.35s ease;
+}
+
+.ans-btn.correct .ans-key {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+.ans-btn.wrong {
+  border-color: var(--red);
+  background: rgba(255,61,90,0.06);
+  animation: flash-red 0.35s ease;
+}
+
+.ans-btn.wrong .ans-key {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+}
+
+.ans-btn.reveal-correct {
+  border-color: var(--green);
+  background: rgba(0,255,136,0.04);
+}
+
+.ans-btn.reveal-correct .ans-key {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+@keyframes flash-green {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+  50%  { box-shadow: 0 0 0 6px rgba(0,255,136,0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+
+@keyframes flash-red {
+  0%   { box-shadow: 0 0 0 0 rgba(255,61,90,0); }
+  50%  { box-shadow: 0 0 0 6px rgba(255,61,90,0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(255,61,90,0); }
+}
+
+/* Feedback */
+.feedback {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  display: none;
+  animation: screenIn 0.25s ease;
+}
+
+.feedback.show { display: flex; gap: 12px; align-items: flex-start; }
+.feedback.ok   { border-left: 3px solid var(--green); }
+.feedback.fail { border-left: 3px solid var(--red); }
+
+.fb-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+.fb-text { color: var(--text); }
+.fb-text strong { color: var(--text-bright); }
+
+.btn-next {
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 11px 28px;
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  color: var(--text-dim);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+
+.btn-next.show {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-next:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0,212,255,0.15);
+}
+
+/* ─── RESULTS SCREEN ─── */
+.results-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 40px 36px;
+}
+
+.res-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.res-icon { font-size: 3.5rem; line-height: 1; }
+
+.res-title {
+  font-family: var(--display);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.res-sub { font-size: 0.72rem; color: var(--text-dim); letter-spacing: 1px; }
+
+.score-display {
+  font-family: var(--display);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 32px;
+}
+
+.score-display .num { color: var(--green); }
+.score-display .sep { color: var(--text-dim); font-size: 0.5em; }
+.score-display .tot { color: var(--text-dim); }
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 480px) { .breakdown-grid { grid-template-columns: 1fr; } }
+
+.breakdown-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.breakdown-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+
+.breakdown-card.algo::before { background: var(--cyan); }
+.breakdown-card.cpp::before  { background: var(--orange); }
+
+.bd-tag {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.breakdown-card.algo .bd-tag { color: var(--cyan); }
+.breakdown-card.cpp  .bd-tag { color: var(--orange); }
+
+.bd-score {
+  font-family: var(--display);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.bd-of { font-size: 0.72rem; color: var(--text-dim); }
+
+.verdict-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+
+.verdict-box .vd-label {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.btn-restart {
+  font-family: var(--display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 13px 36px;
+  background: transparent;
+  border: 2px solid var(--cyan);
+  color: var(--cyan);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-restart::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--cyan);
+  transform: translateX(-100%);
+  transition: transform 0.2s;
+  z-index: -1;
+}
+
+.btn-restart:hover { color: var(--bg); box-shadow: 0 0 24px rgba(0,212,255,0.3); }
+.btn-restart:hover::before { transform: translateX(0); }
+
+/* Blinking cursor */
+.cursor {
+  display: inline-block;
+  width: 8px; height: 1em;
+  background: var(--green);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Bottom border decoration */
+.quiz-body {
+  border-radius: 0 0 12px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.quiz-header + .quiz-body {
+  border-top: 1px solid var(--border-bright);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════ START ═══════════════ -->
+  <div class="screen active" id="screen-start">
+    <div class="topbar">
+      <div class="topbar-dot dot-r"></div>
+      <div class="topbar-dot dot-y"></div>
+      <div class="topbar-dot dot-g"></div>
+      <span class="topbar-title">quiz_v2.0 — algorytmika_cpp.exe</span>
+    </div>
+    <div class="start-box">
+      <div class="prompt-line">$ ./quiz --module=all --class="1LMS"</div>
+      <div class="big-title">ALGORYTMIKA<br>& <span>C++</span></div>
+      <div class="sub">KLASA 1 LICEUM MISTRZOSTWA SPORTOWEGO · INFORMATYKA</div>
+
+      <div class="modules-grid">
+        <div class="module-card algo">
+          <div class="module-tag">// Moduł 01</div>
+          <div class="module-title">Algorytmika</div>
+          <div class="module-desc">Pojęcia algorytmu, złożoność, schematy blokowe, sortowanie, pseudokod, typy danych</div>
+        </div>
+        <div class="module-card cpp">
+          <div class="module-tag">// Moduł 02</div>
+          <div class="module-title">Podstawy C++</div>
+          <div class="module-desc">Składnia, zmienne, typy, pętle, warunki, funkcje, wejście/wyjście, operatory</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val">20</span><span>pytań</span></div>
+        <div class="stat"><span class="stat-val">2</span><span>moduły</span></div>
+        <div class="stat"><span class="stat-val" style="color:var(--orange)">★★★</span><span>trudność</span></div>
+      </div>
+
+      <button class="btn-start" onclick="startQuiz()">RUN QUIZ <span class="cursor"></span></button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ QUIZ ═══════════════ -->
+  <div class="screen" id="screen-quiz">
+    <div class="topbar">
+      <div class="topbar-dot dot-r"></div>
+      <div class="topbar-dot dot-y"></div>
+      <div class="topbar-dot dot-g"></div>
+      <span class="topbar-title" id="topbar-file">quiz — pytanie 1/20</span>
+    </div>
+    <div class="quiz-header">
+      <span class="q-module-tag algo" id="q-cat-tag">ALGORYTMIKA</span>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      <span class="score-badge" id="score-badge">⬡ 0 PKT</span>
+    </div>
+    <div class="quiz-body">
+      <div class="q-meta">
+        <span class="q-num" id="q-num">[01/20]</span>
+        <span>—</span>
+        <span id="q-cat-label">algorytmika</span>
+      </div>
+
+      <!-- Optional code snippet -->
+      <div class="q-code-wrap" id="q-code-wrap">
+        <div class="code-label">// fragment kodu</div>
+        <div class="code-block" id="q-code-block"></div>
+      </div>
+
+      <div class="q-text" id="q-text">Treść pytania...</div>
+
+      <div class="answers-list" id="answers-list"></div>
+
+      <div class="feedback" id="feedback">
+        <span class="fb-icon" id="fb-icon"></span>
+        <div class="fb-text" id="fb-text"></div>
+      </div>
+
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+        DALEJ →
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ RESULTS ═══════════════ -->
+  <div class="screen" id="screen-results">
+    <div class="topbar">
+      <div class="topbar-dot dot-r"></div>
+      <div class="topbar-dot dot-y"></div>
+      <div class="topbar-dot dot-g"></div>
+      <span class="topbar-title">quiz — wyniki końcowe</span>
+    </div>
+    <div class="results-box">
+      <div class="res-header">
+        <div class="res-icon" id="res-icon">🖥️</div>
+        <div>
+          <div class="res-title" id="res-title">WYNIK KOŃCOWY</div>
+          <div class="res-sub" id="res-sub">Klasa 1 LMS · Algorytmika & C++</div>
+        </div>
+      </div>
+
+      <div class="score-display">
+        <span class="num" id="res-score">0</span><span class="sep">/</span><span class="tot">20</span>
+      </div>
+
+      <div class="breakdown-grid">
+        <div class="breakdown-card algo">
+          <div class="bd-tag">// Algorytmika</div>
+          <div class="bd-score" id="bd-algo">0</div>
+          <div class="bd-of">z 10 punktów</div>
+        </div>
+        <div class="breakdown-card cpp">
+          <div class="bd-tag">// C++</div>
+          <div class="bd-score" id="bd-cpp">0</div>
+          <div class="bd-of">z 10 punktów</div>
+        </div>
+      </div>
+
+      <div class="verdict-box">
+        <div class="vd-label">// ocena</div>
+        <div id="verdict-text"></div>
+      </div>
+
+      <button class="btn-restart" onclick="restartQuiz()">↺ URUCHOM PONOWNIE</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══ PYTANIA ═══
+const ALL_QUESTIONS = [
+
+  // ─── ALGORYTMIKA: pojęcie algorytmu, schematy blokowe, proste typy danych ───
+  {
+    cat: 'algo',
+    text: 'Co to jest algorytm?',
+    code: null,
+    answers: [
+      'Nazwa języka programowania',
+      'Skończony ciąg kroków prowadzących do rozwiązania problemu',
+      'Rysunek przedstawiający komputer',
+      'Rodzaj błędu w programie'
+    ],
+    correct: 1,
+    explanation: '<strong>Algorytm</strong> to skończony, uporządkowany ciąg kroków, który prowadzi do rozwiązania danego problemu. Przykładem algorytmu jest przepis kulinarny – krok po kroku do gotowego dania!'
+  },
+  {
+    cat: 'algo',
+    text: 'Który kształt w schemacie blokowym oznacza START lub STOP algorytmu?',
+    code: null,
+    answers: [
+      'Prostokąt',
+      'Romb (diament)',
+      'Owal (elipsa)',
+      'Równoległobok'
+    ],
+    correct: 2,
+    explanation: '<strong>Owal (elipsa)</strong> oznacza początek (START) lub koniec (STOP) algorytmu. Każdy schemat blokowy musi zaczynać się i kończyć tym symbolem.'
+  },
+  {
+    cat: 'algo',
+    text: 'Jaki kształt w schemacie blokowym oznacza zwykłą czynność (instrukcję), np. „oblicz x = a + b"?',
+    code: null,
+    answers: [
+      'Owal',
+      'Romb',
+      'Prostokąt',
+      'Strzałka'
+    ],
+    correct: 2,
+    explanation: '<strong>Prostokąt</strong> to symbol instrukcji (akcji) – czyli dowolnej czynności wykonywanej przez algorytm, np. obliczenia lub przypisania wartości.'
+  },
+  {
+    cat: 'algo',
+    text: 'Jaki kształt w schemacie blokowym oznacza sprawdzenie warunku (np. „czy x > 0")?',
+    code: null,
+    answers: [
+      'Owal',
+      'Romb (diament)',
+      'Prostokąt',
+      'Równoległobok'
+    ],
+    correct: 1,
+    explanation: '<strong>Romb (diament)</strong> symbolizuje decyzję – sprawdzenie warunku. Ze symbolu wychodzą dwie strzałki: TAK i NIE.'
+  },
+  {
+    cat: 'algo',
+    text: 'Jaki kształt w schemacie blokowym oznacza operację wejścia lub wyjścia (np. wczytaj lub wypisz)?',
+    code: null,
+    answers: [
+      'Prostokąt',
+      'Owal',
+      'Romb',
+      'Równoległobok'
+    ],
+    correct: 3,
+    explanation: '<strong>Równoległobok</strong> oznacza wejście (np. wczytanie liczby od użytkownika) lub wyjście (np. wypisanie wyniku na ekran).'
+  },
+  {
+    cat: 'algo',
+    text: 'Do czego służą strzałki (linie z grotem) w schemacie blokowym?',
+    code: null,
+    answers: [
+      'Są czysto dekoracyjne',
+      'Wskazują kolejność wykonywania kroków algorytmu',
+      'Oznaczają błędy w algorytmie',
+      'Łączą różne programy ze sobą'
+    ],
+    correct: 1,
+    explanation: '<strong>Strzałki</strong> pokazują przepływ sterowania – czyli w jakiej kolejności wykonywane są kolejne kroki algorytmu. Czytamy schemat podążając za strzałkami.'
+  },
+  {
+    cat: 'algo',
+    text: 'Który typ danych przechowuje liczby całkowite, np. 5, -3, 100?',
+    code: null,
+    answers: [
+      'float',
+      'char',
+      'int',
+      'bool'
+    ],
+    correct: 2,
+    explanation: '<strong>int</strong> (od angielskiego integer = liczba całkowita) przechowuje liczby bez części ułamkowej, np. 5, -3, 0, 100.'
+  },
+  {
+    cat: 'algo',
+    text: 'Który typ danych przechowuje liczby z częścią ułamkową, np. 3.14 lub 2.5?',
+    code: null,
+    answers: [
+      'int',
+      'bool',
+      'char',
+      'float'
+    ],
+    correct: 3,
+    explanation: '<strong>float</strong> (i podobny typ <strong>double</strong>) przechowują liczby zmiennoprzecinkowe, czyli z częścią ułamkową, np. 3.14, -0.5, 2.718.'
+  },
+  {
+    cat: 'algo',
+    text: 'Który typ danych może przechowywać tylko dwie wartości: prawda lub fałsz?',
+    code: null,
+    answers: [
+      'int',
+      'float',
+      'bool',
+      'char'
+    ],
+    correct: 2,
+    explanation: '<strong>bool</strong> (od boolean) przyjmuje tylko dwie wartości: <strong>true</strong> (prawda) lub <strong>false</strong> (fałsz). Używany jest np. do przechowywania wyników porównań.'
+  },
+  {
+    cat: 'algo',
+    text: 'Który typ danych służy do przechowywania pojedynczego znaku, np. litery „A" lub cyfry „7"?',
+    code: null,
+    answers: [
+      'int',
+      'float',
+      'bool',
+      'char'
+    ],
+    correct: 3,
+    explanation: '<strong>char</strong> (od character = znak) przechowuje jeden znak, np. \'A\', \'z\', \'5\', \'!\'. Wartość char zapisujemy w apostrofach.'
+  },
+
+  // ─── C++: struktura programu, hello world, operatory ───
+  {
+    cat: 'cpp',
+    text: 'Od czego MUSI zaczynać się każdy program w C++?',
+    code: null,
+    answers: [
+      'Od słowa "start"',
+      'Od dyrektywy #include i funkcji main()',
+      'Od napisania komentarza',
+      'Od deklaracji zmiennej'
+    ],
+    correct: 1,
+    explanation: 'Każdy program C++ potrzebuje dyrektywy <strong>#include</strong> (dołączającej biblioteki) oraz funkcji <strong>main()</strong> – to od niej zaczyna się wykonanie programu.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Do czego służy linia "#include <iostream>" na początku programu?',
+    code: null,
+    answers: [
+      'Uruchamia program',
+      'Dołącza bibliotekę umożliwiającą wypisywanie i wczytywanie danych (cout, cin)',
+      'Definiuje funkcję main',
+      'Tworzy nową zmienną'
+    ],
+    correct: 1,
+    explanation: '<strong>#include &lt;iostream&gt;</strong> dołącza bibliotekę wejścia/wyjścia. Bez niej nie możemy używać <strong>cout</strong> (wypisywanie) ani <strong>cin</strong> (wczytywanie).'
+  },
+  {
+    cat: 'cpp',
+    text: 'Co wypisze na ekranie poniższy program?',
+    code:
+`<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="tp">std</span>;
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">cout</span> <span class="op">&lt;&lt;</span> <span class="st">"Hello, World!"</span>;
+    <span class="kw">return</span> <span class="nu">0</span>;
+}`,
+    answers: [
+      'main',
+      'iostream',
+      'Hello, World!',
+      'Nic – program się nie skompiluje'
+    ],
+    correct: 2,
+    explanation: '<strong>Hello, World!</strong> – to klasyczny pierwszy program. <strong>cout &lt;&lt;</strong> wypisuje tekst na ekran. Tekst wpisujemy w cudzysłowy.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Co oznacza "return 0;" na końcu funkcji main()?',
+    code: null,
+    answers: [
+      'Cofa ostatnią operację',
+      'Wypisuje zero na ekran',
+      'Informuje system, że program zakończył się poprawnie',
+      'Zeruje wszystkie zmienne'
+    ],
+    correct: 2,
+    explanation: '<strong>return 0;</strong> zwraca wartość 0 do systemu operacyjnego, co oznacza, że program zakończył się bez błędów. To standardowe zakończenie funkcji main().'
+  },
+  {
+    cat: 'cpp',
+    text: 'Do czego służy operator + w C++?',
+    code: null,
+    answers: [
+      'Do porównywania dwóch liczb',
+      'Do dodawania dwóch wartości',
+      'Do przypisywania wartości do zmiennej',
+      'Do wypisywania tekstu'
+    ],
+    correct: 1,
+    explanation: '<strong>+</strong> to operator arytmetyczny dodawania. Przykład: int wynik = 3 + 5; – zmienna wynik będzie miała wartość 8.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Jaki wynik obliczy C++ dla wyrażenia: 10 - 3?',
+    code: null,
+    answers: ['13', '30', '7', '3'],
+    correct: 2,
+    explanation: '<strong>7</strong> – operator <strong>-</strong> to odejmowanie. 10 minus 3 równa się 7.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Co robi operator * w C++?',
+    code: null,
+    answers: [
+      'Dzieli dwie liczby',
+      'Mnoży dwie liczby',
+      'Oblicza potęgę',
+      'Dodaje dwie liczby'
+    ],
+    correct: 1,
+    explanation: '<strong>*</strong> to operator mnożenia. Przykład: 4 * 5 = 20. Uwaga: do potęgowania w C++ używamy funkcji pow(), a nie operatora ^.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Co wypisze poniższy kod?',
+    code:
+`<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="tp">std</span>;
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> a <span class="op">=</span> <span class="nu">4</span>;
+    <span class="kw">int</span> b <span class="op">=</span> <span class="nu">3</span>;
+    <span class="tp">cout</span> <span class="op">&lt;&lt;</span> a <span class="op">+</span> b;
+    <span class="kw">return</span> <span class="nu">0</span>;
+}`,
+    answers: ['4', '3', '43', '7'],
+    correct: 3,
+    explanation: '<strong>7</strong> – zmienne a i b przechowują liczby całkowite 4 i 3. Operator + dodaje je, więc cout wypisze wynik: 7.'
+  },
+  {
+    cat: 'cpp',
+    text: 'Do czego służy operator = (pojedynczy znak równości) w C++?',
+    code: null,
+    answers: [
+      'Do porównywania dwóch wartości',
+      'Do przypisywania wartości do zmiennej',
+      'Do sprawdzania, czy dwie liczby są równe',
+      'Do dodawania liczb'
+    ],
+    correct: 1,
+    explanation: '<strong>= to operator przypisania</strong> – nadaje zmiennej określoną wartość. Przykład: int x = 10; oznacza "zmienna x ma wartość 10". Nie myl z == (porównanie)!'
+  },
+  {
+    cat: 'cpp',
+    text: 'Co oznacza "using namespace std;" w programie C++?',
+    code: null,
+    answers: [
+      'Tworzy nową funkcję o nazwie std',
+      'Pozwala używać cout i cin bez pisania "std::" przed nimi',
+      'Importuje plik z dysku',
+      'Definiuje nowy typ danych'
+    ],
+    correct: 1,
+    explanation: '<strong>using namespace std;</strong> pozwala pisać po prostu <strong>cout</strong> zamiast <strong>std::cout</strong> oraz <strong>cin</strong> zamiast <strong>std::cin</strong>. Upraszcza kod.'
+  }
+];
+
+// ═══ LOGIKA QUIZU ═══
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let questions = [];
+let current = 0;
+let score = 0;
+let algoScore = 0;
+let cppScore = 0;
+let answered = false;
+
+function startQuiz() {
+  questions = shuffle(ALL_QUESTIONS);
+  current = 0; score = 0; algoScore = 0; cppScore = 0; answered = false;
+  showScreen('screen-quiz');
+  loadQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  // topbar
+  document.getElementById('topbar-file').textContent = `quiz — pytanie ${current+1}/${total}`;
+
+  // progress
+  document.getElementById('prog-fill').style.width = `${(current / total) * 100}%`;
+
+  // score
+  document.getElementById('score-badge').textContent = `⬡ ${score} PKT`;
+
+  // module tag
+  const tag = document.getElementById('q-cat-tag');
+  if (q.cat === 'algo') {
+    tag.textContent = 'ALGORYTMIKA';
+    tag.className = 'q-module-tag algo';
+  } else {
+    tag.textContent = 'C++';
+    tag.className = 'q-module-tag cpp';
+  }
+
+  // meta
+  document.getElementById('q-num').textContent = `[${String(current+1).padStart(2,'0')}/${total}]`;
+  document.getElementById('q-cat-label').textContent = q.cat === 'algo' ? 'algorytmika' : 'programowanie C++';
+
+  // code block
+  const codeWrap = document.getElementById('q-code-wrap');
+  if (q.code) {
+    document.getElementById('q-code-block').innerHTML = q.code;
+    codeWrap.classList.add('visible');
+  } else {
+    codeWrap.classList.remove('visible');
+  }
+
+  // question text
+  document.getElementById('q-text').textContent = q.text;
+
+  // answers
+  const list = document.getElementById('answers-list');
+  list.innerHTML = '';
+  const keys = ['A', 'B', 'C', 'D'];
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.innerHTML = `<span class="ans-key">${keys[i]}</span><span>${ans}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    list.appendChild(btn);
+  });
+
+  // feedback + next
+  document.getElementById('feedback').className = 'feedback';
+  const nb = document.getElementById('btn-next');
+  nb.className = 'btn-next';
+  nb.textContent = current < questions.length - 1 ? 'DALEJ →' : 'WYNIKI →';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[current];
+  const btns = document.querySelectorAll('.ans-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  const fbIcon = document.getElementById('fb-icon');
+  const fbText = document.getElementById('fb-text');
+
+  if (idx === q.correct) {
+    btns[idx].classList.add('correct');
+    score++;
+    if (q.cat === 'algo') algoScore++; else cppScore++;
+    fb.className = 'feedback show ok';
+    fbIcon.textContent = '✓';
+    fbText.innerHTML = `<strong>Dobrze!</strong> ${q.explanation}`;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.correct].classList.add('reveal-correct');
+    fb.className = 'feedback show fail';
+    fbIcon.textContent = '✗';
+    fbText.innerHTML = `<strong>Niepoprawnie.</strong> ${q.explanation}`;
+  }
+
+  document.getElementById('score-badge').textContent = `⬡ ${score} PKT`;
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResults() {
+  showScreen('screen-results');
+  const total = questions.length;
+  const pct = score / total;
+
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('bd-algo').textContent = `${algoScore}/10`;
+  document.getElementById('bd-cpp').textContent  = `${cppScore}/10`;
+
+  let icon, title, verdict;
+  if (pct >= 0.9) {
+    icon = '🏆'; title = 'WYNIK DOSKONAŁY';
+    verdict = 'Rewelacyjny wynik! Masz solidne podstawy algorytmiki i C++. Jesteś gotowy na bardziej zaawansowane tematy: tablice, wskaźniki, STL. Tak trzymaj!';
+  } else if (pct >= 0.7) {
+    icon = '🥇'; title = 'BARDZO DOBRY WYNIK';
+    verdict = 'Bardzo dobrze! Znasz większość podstaw. Warto jeszcze raz przejrzeć zagadnienia, w których popełniłeś błędy – szczególnie złożoność algorytmów i typy danych w C++.';
+  } else if (pct >= 0.5) {
+    icon = '🔧'; title = 'WYNIK ŚREDNI';
+    verdict = 'Dobry start! Podstawy są opanowane, ale kilka kluczowych pojęć wymaga powtórzenia. Wróć do tematu złożoności algorytmów oraz składni C++ (pętle, warunki, operatory).';
+  } else {
+    icon = '📖'; title = 'DO POPRAWY';
+    verdict = 'Nie zrażaj się – algorytmika i C++ wymagają praktyki. Zacznij od podstawowych pojęć algorytmu, typów danych i prostych programów w C++. Powtórz i wróć do quizu!';
+  }
+
+  document.getElementById('res-icon').textContent = icon;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('verdict-text').textContent = verdict;
+}
+
+function restartQuiz() {
+  startQuiz();
+}
+
+// Każde otwarcie strony = nowa kolejność pytań
+window.addEventListener('DOMContentLoaded', () => {
+  // pytania zostaną przetasowane przy startQuiz()
+});
+</script>
+</body>
+</html>
