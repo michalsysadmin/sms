@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Pliki, Katalogi i Bezpieczeństwo w Internecie</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1b3d;
+    --card: #1a2a55;
+    --accent1: #ff6b6b;
+    --accent2: #ffd93d;
+    --accent3: #6bcb77;
+    --accent4: #4d96ff;
+    --text: #ffffff;
+    --text-soft: #a8b4d8;
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(77,150,255,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(255,107,107,0.12) 0%, transparent 50%);
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: twinkle 3s infinite alternate;
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.2; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.3); }
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 800px; margin: 0 auto; padding: 20px;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+  }
+
+  .screen { width: 100%; display: none; animation: fadeIn 0.5s ease; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    background: linear-gradient(135deg, var(--accent4), var(--accent2), var(--accent1));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    text-align: center; margin: 30px 0 10px; line-height: 1.1;
+  }
+
+  .subtitle {
+    color: var(--text-soft); font-size: 1.1rem; font-weight: 600;
+    text-align: center; margin-bottom: 30px;
+  }
+
+  .emoji-row {
+    font-size: 3rem; display: flex; gap: 15px; margin-bottom: 30px;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .topics-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 15px; width: 100%; margin-bottom: 30px;
+  }
+
+  .topic-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 20px; border: 2px solid transparent;
+    transition: all 0.3s; text-align: center;
+  }
+
+  .topic-card.files { border-color: var(--accent3); }
+  .topic-card.internet { border-color: var(--accent4); }
+  .topic-card .icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .topic-card h3 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 6px; }
+  .topic-card p { color: var(--text-soft); font-size: 0.85rem; }
+
+  .btn {
+    font-family: 'Fredoka One', cursive; font-size: 1.3rem;
+    padding: 16px 50px; border: none; border-radius: 50px;
+    cursor: pointer; transition: all 0.25s; letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent4), #7b2ff7);
+    color: white; box-shadow: 0 8px 25px rgba(77,150,255,0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 14px 35px rgba(77,150,255,0.55);
+  }
+
+  .progress-bar-wrap {
+    width: 100%; background: rgba(255,255,255,0.1);
+    border-radius: 50px; height: 12px; margin: 20px 0 10px; overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--accent4), var(--accent2));
+    transition: width 0.5s ease;
+  }
+
+  .meta-row {
+    width: 100%; display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 20px;
+    font-size: 0.9rem; color: var(--text-soft); font-weight: 700;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08); border-radius: 30px;
+    padding: 6px 14px; font-size: 0.85rem; font-weight: 700;
+  }
+
+  .badge.files-badge { color: var(--accent3); border: 1.5px solid var(--accent3); }
+  .badge.internet-badge { color: var(--accent4); border: 1.5px solid var(--accent4); }
+
+  .question-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 28px; width: 100%; margin-bottom: 20px;
+    border: 2px solid rgba(255,255,255,0.07);
+    position: relative; overflow: hidden;
+  }
+
+  .question-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 4px; background: linear-gradient(90deg, var(--accent4), var(--accent2));
+  }
+
+  .q-number { font-family: 'Fredoka One', cursive; color: var(--text-soft); font-size: 0.9rem; margin-bottom: 10px; }
+  .q-text { font-size: 1.15rem; font-weight: 700; line-height: 1.5; }
+
+  .answers-grid {
+    width: 100%; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+  }
+
+  @media (max-width: 500px) {
+    .answers-grid { grid-template-columns: 1fr; }
+    .topics-grid { grid-template-columns: 1fr; }
+  }
+
+  .answer-btn {
+    background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius); padding: 14px 18px; color: white;
+    font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; text-align: left;
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background: rgba(77,150,255,0.15); border-color: var(--accent4); transform: translateY(-2px);
+  }
+
+  .answer-btn .letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); display: flex;
+    align-items: center; justify-content: center;
+    font-family: 'Fredoka One', cursive; font-size: 1rem; flex-shrink: 0;
+  }
+
+  .answer-btn.correct {
+    background: rgba(107,203,119,0.2); border-color: var(--accent3);
+    animation: pulse-green 0.4s ease;
+  }
+
+  .answer-btn.correct .letter { background: var(--accent3); color: #0f1b3d; }
+
+  .answer-btn.wrong {
+    background: rgba(255,107,107,0.2); border-color: var(--accent1);
+    animation: shake 0.4s ease;
+  }
+
+  .answer-btn.wrong .letter { background: var(--accent1); }
+
+  @keyframes pulse-green {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .feedback-box {
+    width: 100%; border-radius: var(--radius);
+    padding: 16px 20px; font-weight: 700; font-size: 1rem;
+    margin-bottom: 15px; display: none;
+    align-items: center; gap: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .feedback-box.show { display: flex; }
+  .feedback-box.correct { background: rgba(107,203,119,0.15); border: 2px solid var(--accent3); }
+  .feedback-box.wrong { background: rgba(255,107,107,0.15); border: 2px solid var(--accent1); }
+  .feedback-icon { font-size: 1.6rem; }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    color: #0f1b3d; font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+    padding: 14px 40px; border: none; border-radius: 50px; cursor: pointer;
+    display: none; transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(255,217,61,0.3);
+  }
+
+  .btn-next.show { display: block; }
+  .btn-next:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(255,217,61,0.45); }
+
+  .score-screen { text-align: center; padding: 20px; }
+
+  .trophy { font-size: 5rem; margin: 20px 0; animation: trophy-bounce 1s ease; }
+
+  @keyframes trophy-bounce {
+    0% { transform: scale(0) rotate(-20deg); }
+    60% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .score-title { font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; }
+
+  .score-big {
+    font-family: 'Fredoka One', cursive; font-size: 5rem;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; line-height: 1; margin: 10px 0;
+  }
+
+  .score-sub { color: var(--text-soft); font-size: 1.1rem; margin-bottom: 25px; }
+
+  .cats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 15px; width: 100%; margin-bottom: 25px;
+  }
+
+  .cat-card { background: var(--card); border-radius: var(--radius); padding: 18px; text-align: center; }
+  .cat-card .cat-icon { font-size: 2rem; margin-bottom: 8px; }
+  .cat-card h4 { font-family: 'Fredoka One', cursive; font-size: 1.1rem; margin-bottom: 4px; }
+  .cat-card .cat-score { font-size: 1.6rem; font-weight: 900; }
+
+  .medal-msg {
+    background: var(--card); border-radius: var(--radius); padding: 20px;
+    width: 100%; margin-bottom: 25px; border: 2px solid var(--accent2);
+    font-size: 1rem; line-height: 1.6; font-weight: 600;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--accent4), #7b2ff7);
+    color: white; font-family: 'Fredoka One', cursive; font-size: 1.2rem;
+    padding: 15px 45px; border: none; border-radius: 50px;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(77,150,255,0.4);
+  }
+
+  .btn-restart:hover { transform: translateY(-3px); }
+
+  .confetti-piece {
+    position: fixed; width: 10px; height: 14px;
+    border-radius: 2px; animation: confetti-fall 3s forwards; z-index: 999;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="logo">Quiz Informatyczny 🖥️</div>
+    <div class="subtitle">Szkoła Podstawowa – Klasa 4</div>
+
+    <div class="emoji-row">
+      <span>📁</span><span>📄</span><span>🔒</span><span>💻</span>
+    </div>
+
+    <div class="topics-grid">
+      <div class="topic-card files">
+        <div class="icon">📁</div>
+        <h3>Pliki i Katalogi</h3>
+        <p>Tworzenie, nazewnictwo, rozszerzenia i foldery</p>
+      </div>
+      <div class="topic-card internet">
+        <div class="icon">🔒</div>
+        <h3>Bezpieczeństwo w Sieci</h3>
+        <p>Hasła, prywatność, zagrożenia online</p>
+      </div>
+    </div>
+
+    <p style="color: var(--text-soft); margin-bottom: 25px; font-weight: 700; font-size: 0.95rem;">
+      🎯 20 pytań • 2 działy • Sprawdź swoją wiedzę!
+    </p>
+
+    <button class="btn btn-primary" onclick="startQuiz()">Zaczynamy! 🚀</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-bar-wrap" style="width:100%">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="meta-row">
+      <span id="q-counter">Pytanie 1 z 20</span>
+      <span id="cat-badge" class="badge files-badge">📁 Pliki</span>
+      <span id="score-display">⭐ 0 pkt</span>
+    </div>
+
+    <div class="question-card">
+      <div class="q-number" id="q-number">Pytanie 1</div>
+      <div class="q-text" id="q-text">Treść pytania...</div>
+    </div>
+
+    <div class="answers-grid" id="answers-grid"></div>
+
+    <div class="feedback-box" id="feedback-box">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <span id="feedback-text"></span>
+    </div>
+
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Następne pytanie ➡️</button>
+  </div>
+
+  <!-- SCORE SCREEN -->
+  <div class="screen" id="screen-score">
+    <div class="trophy" id="trophy">🏆</div>
+    <div class="score-title" id="score-title">Brawo!</div>
+    <div class="score-big" id="score-big">0/20</div>
+    <div class="score-sub" id="score-sub">Twój wynik</div>
+
+    <div class="cats-grid">
+      <div class="cat-card">
+        <div class="cat-icon">📁</div>
+        <h4>Pliki i Katalogi</h4>
+        <div class="cat-score" id="files-score" style="color: var(--accent3);">0/10</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon">🔒</div>
+        <h4>Bezpieczeństwo</h4>
+        <div class="cat-score" id="internet-score" style="color: var(--accent4);">0/10</div>
+      </div>
+    </div>
+
+    <div class="medal-msg" id="medal-msg"></div>
+
+    <button class="btn-restart" onclick="restartQuiz()">🔄 Zagraj ponownie</button>
+  </div>
+
+</div>
+
+<script>
+// Stars
+(function() {
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 3 + 1;
+    star.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%;
+      left:${Math.random()*100}%;
+      animation-delay:${Math.random()*3}s;
+      animation-duration:${2+Math.random()*3}s;
+    `;
+    s.appendChild(star);
+  }
+})();
+
+const questions = [
+  // PLIKI I KATALOGI (10 pytań) – klasa 4
+  {
+    cat: 'files',
+    text: 'Co to jest plik komputerowy?',
+    answers: [
+      'Szuflada w biurku',
+      'Zbiór danych zapisanych na komputerze, np. zdjęcie lub tekst',
+      'Kabel do ładowania',
+      'Część klawiatury'
+    ],
+    correct: 1,
+    explanation: 'Plik to zapisana na komputerze informacja – może to być zdjęcie, tekst, muzyka albo program!'
+  },
+  {
+    cat: 'files',
+    text: 'Jak inaczej nazywamy folder na komputerze?',
+    answers: ['Plik', 'Katalog', 'Program', 'Ikona'],
+    correct: 1,
+    explanation: 'Folder i katalog to to samo! To specjalne miejsce, w którym przechowujemy pliki – jak teczka na dokumenty.'
+  },
+  {
+    cat: 'files',
+    text: 'Co oznacza rozszerzenie pliku, np. ".jpg" lub ".txt"?',
+    answers: [
+      'Rozmiar pliku',
+      'Datę utworzenia pliku',
+      'Rodzaj pliku – co jest w środku',
+      'Nazwę komputera'
+    ],
+    correct: 2,
+    explanation: 'Rozszerzenie mówi, jakiego rodzaju jest plik. ".jpg" to zdjęcie, ".txt" to tekst, ".mp3" to muzyka!'
+  },
+  {
+    cat: 'files',
+    text: 'W którym miejscu na komputerze zazwyczaj tworzymy nowy folder?',
+    answers: [
+      'W menu Start',
+      'Prawym przyciskiem myszy na pulpicie lub w eksploratorze plików',
+      'Wciskając klawisz Delete',
+      'W kalkulatorze'
+    ],
+    correct: 1,
+    explanation: 'Nowy folder tworzymy klikając prawym przyciskiem myszy i wybierając "Nowy → Folder". Proste!'
+  },
+  {
+    cat: 'files',
+    text: 'Jak powinniśmy nazywać pliki i foldery?',
+    answers: [
+      'Losowymi literami, np. "aaaaaa"',
+      'Krótkimi, zrozumiałymi nazwami opisującymi zawartość',
+      'Zawsze jedną literą',
+      'Nie wolno ich w ogóle nazywać'
+    ],
+    correct: 1,
+    explanation: 'Dobra nazwa pliku, np. "zdjecia_wakacje" lub "zadanie_matematyka", pomaga szybko go znaleźć!'
+  },
+  {
+    cat: 'files',
+    text: 'Co to jest "Kosz" na komputerze?',
+    answers: [
+      'Miejsce do pobierania muzyki',
+      'Folder z grami',
+      'Tymczasowe miejsce na usunięte pliki – można je stamtąd przywrócić',
+      'Program do rysowania'
+    ],
+    correct: 2,
+    explanation: 'Kosz to jak kosz na śmieci – usunięte pliki lądują tam i możemy je przywrócić, dopóki nie opróżnimy Kosza!'
+  },
+  {
+    cat: 'files',
+    text: 'Jakie rozszerzenie ma zazwyczaj plik z muzyką?',
+    answers: ['.jpg', '.mp3', '.docx', '.exe'],
+    correct: 1,
+    explanation: 'Pliki muzyczne mają rozszerzenie .mp3 (lub .wav, .ogg). ".jpg" to zdjęcia, ".docx" to dokumenty Word!'
+  },
+  {
+    cat: 'files',
+    text: 'Co to znaczy "skopiować plik"?',
+    answers: [
+      'Usunąć go z komputera',
+      'Stworzyć jego kopię w innym miejscu – oryginał zostaje',
+      'Zmienić jego nazwę',
+      'Wysłać go przez internet na zawsze'
+    ],
+    correct: 1,
+    explanation: 'Kopiowanie tworzy drugi, identyczny plik w nowym miejscu. Oryginał zostaje tam, gdzie był!'
+  },
+  {
+    cat: 'files',
+    text: 'Czym różni się "kopiowanie" od "wycinania" pliku?',
+    answers: [
+      'Niczym – to to samo',
+      'Kopiowanie zostawia oryginał, wycinanie przenosi plik (oryginał znika ze starego miejsca)',
+      'Wycinanie usuwa plik na zawsze',
+      'Kopiowanie jest szybsze'
+    ],
+    correct: 1,
+    explanation: 'Ctrl+C kopiuje (zostawia oryginał), a Ctrl+X wycina (przenosi plik). Ctrl+V wkleja w obu przypadkach!'
+  },
+  {
+    cat: 'files',
+    text: 'Co to jest "ścieżka dostępu" do pliku, np. C:\\Dokumenty\\zadanie.txt?',
+    answers: [
+      'Prędkość internetu',
+      'Adres wskazujący, gdzie na dysku znajduje się plik',
+      'Hasło do pliku',
+      'Rozmiar pliku'
+    ],
+    correct: 1,
+    explanation: 'Ścieżka to jak adres pliku na dysku – mówi dokładnie, w którym folderze i na którym dysku się on znajduje.'
+  },
+
+  // BEZPIECZEŃSTWO W INTERNECIE (10 pytań) – klasa 4
+  {
+    cat: 'internet',
+    text: 'Komu możesz podać swoje hasło do gry lub portalu?',
+    answers: [
+      'Nowej osobie poznanej w internecie',
+      'Nikomu – hasło jest tylko dla Ciebie',
+      'Każdemu, kto poprosi',
+      'Nieznajomemu, jeśli obiecuje pomoc'
+    ],
+    correct: 1,
+    explanation: 'Hasło to sekret tylko dla Ciebie! Nawet przyjaciele z internetu mogą okazać się nieuczciwi.'
+  },
+  {
+    cat: 'internet',
+    text: 'Obcy człowiek w internecie prosi Cię o zdjęcie. Co robisz?',
+    answers: [
+      'Wysyłam zdjęcie, jeśli jest miły',
+      'Odmawiam i mówię o tym mamie lub tacie',
+      'Wysyłam zdjęcie, bo nie ma w tym nic złego',
+      'Pytam skąd jest i wtedy decyduję'
+    ],
+    correct: 1,
+    explanation: 'Nigdy nie wysyłaj zdjęć obcym! Zawsze powiedz dorosłym, gdy ktoś nieznajomy prosi Cię o zdjęcia lub dane.'
+  },
+  {
+    cat: 'internet',
+    text: 'Które z tych haseł jest bezpieczniejsze?',
+    answers: ['ala', 'kot123', 'M0jaT@jnaLiczba!', '1234'],
+    correct: 2,
+    explanation: 'Dobre hasło jest długie i ma wielkie i małe litery, cyfry i znaki jak ! lub @. Trudne do odgadnięcia!'
+  },
+  {
+    cat: 'internet',
+    text: 'Jaki adres domowy można podać w internecie?',
+    answers: [
+      'Pełny adres – ulica, numer, miasto',
+      'Tylko miasto',
+      'Żadnego – adresu domowego nie podajemy obcym',
+      'Adres szkoły'
+    ],
+    correct: 2,
+    explanation: 'Adresu domowego nie podajemy nikomu w internecie! To prywatna informacja, którą mogą wykorzystać złe osoby.'
+  },
+  {
+    cat: 'internet',
+    text: 'Ktoś w internecie jest dla Ciebie złośliwy i Cię obraża. Co robisz?',
+    answers: [
+      'Obrażam go z powrotem',
+      'Nic nie robię, to normalne',
+      'Mówię o tym rodzicom lub nauczycielowi i blokuję tę osobę',
+      'Podaję mu swój adres i proszę o wyjaśnienia'
+    ],
+    correct: 2,
+    explanation: 'Obrażanie w internecie to cyberprzemoc. Zawsze mów dorosłym i blokuj złośliwe osoby – nie musisz tego znosić!'
+  },
+  {
+    cat: 'internet',
+    text: 'Dostałeś wiadomość: „Wygrałeś nowego iPhone\'a! Kliknij tutaj!" Co robisz?',
+    answers: [
+      'Klikam natychmiast, bo chcę wygrać!',
+      'Pokazuję rodzicom i razem sprawdzamy, czy to prawda',
+      'Podaję swoje dane osobowe',
+      'Wysyłam link wszystkim znajomym'
+    ],
+    correct: 1,
+    explanation: 'Takie wiadomości to najczęściej oszustwo! Pokaż rodzicom – sam nigdy nie klikaj w podejrzane linki.'
+  },
+  {
+    cat: 'internet',
+    text: 'Co to jest wirus komputerowy?',
+    answers: [
+      'Choroba, którą można dostać przez ekran',
+      'Złośliwy program, który niszczy komputer lub kradnie dane',
+      'Rodzaj gry online',
+      'Szybkie połączenie z internetem'
+    ],
+    correct: 1,
+    explanation: 'Wirus komputerowy to zły program, który może uszkodzić Twój komputer lub ukraść ważne pliki i hasła.'
+  },
+  {
+    cat: 'internet',
+    text: 'Po co instaluje się antywirus na komputerze?',
+    answers: [
+      'Żeby szybciej ładowały się strony',
+      'Żeby chronić komputer przed wirusami i złośliwymi programami',
+      'Żeby grać w gry',
+      'Żeby robić zdjęcia'
+    ],
+    correct: 1,
+    explanation: 'Antywirus pilnuje komputera jak ochroniarz – wykrywa i usuwa złośliwe programy, zanim zrobią coś złego.'
+  },
+  {
+    cat: 'internet',
+    text: 'Czy możesz umówić się na spotkanie z osobą poznaną tylko w internecie?',
+    answers: [
+      'Tak, jeśli wygląda sympatycznie na zdjęciu',
+      'Tak, jeśli obiecuje fajny prezent',
+      'Nie – najpierw koniecznie powiedz o tym rodzicom',
+      'Tak, jeśli mieszka blisko'
+    ],
+    correct: 2,
+    explanation: 'Nigdy nie umawiaj się samodzielnie z osobą poznaną w sieci! W internecie łatwo udawać kogoś innego. Zawsze mów rodzicom.'
+  },
+  {
+    cat: 'internet',
+    text: 'Co powinno Cię ostrzec, że strona internetowa może być niebezpieczna?',
+    answers: [
+      'Ma dużo kolorów',
+      'Ładuje się zbyt szybko',
+      'Prosi o hasło lub dane osobowe bez powodu',
+      'Ma dużo zdjęć'
+    ],
+    correct: 2,
+    explanation: 'Jeśli strona bez powodu pyta o hasło, imię czy adres – to może być pułapka! Wyjdź ze strony i powiedz dorosłym.'
+  }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const shuffledQuestions = shuffle(questions);
+
+let currentQ = 0;
+let score = 0;
+let filesScore = 0;
+let internetScore = 0;
+let answered = false;
+
+function startQuiz() {
+  show('screen-quiz');
+  currentQ = 0;
+  score = 0;
+  filesScore = 0;
+  internetScore = 0;
+  loadQuestion();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = shuffledQuestions[currentQ];
+  const total = shuffledQuestions.length;
+
+  document.getElementById('progress-bar').style.width = `${((currentQ) / total) * 100}%`;
+  document.getElementById('q-counter').textContent = `Pytanie ${currentQ + 1} z ${total}`;
+  document.getElementById('score-display').textContent = `⭐ ${score} pkt`;
+  document.getElementById('q-number').textContent = `Pytanie ${currentQ + 1}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const badge = document.getElementById('cat-badge');
+  if (q.cat === 'files') {
+    badge.textContent = '📁 Pliki i Katalogi';
+    badge.className = 'badge files-badge';
+  } else {
+    badge.textContent = '🔒 Bezpieczeństwo';
+    badge.className = 'badge internet-badge';
+  }
+
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span>${ans}`;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedback-box').className = 'feedback-box';
+  document.getElementById('btn-next').className = 'btn-next';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffledQuestions[currentQ];
+  const btns = document.querySelectorAll('.answer-btn');
+  const feedback = document.getElementById('feedback-box');
+  const feedbackIcon = document.getElementById('feedback-icon');
+  const feedbackText = document.getElementById('feedback-text');
+
+  btns.forEach(b => b.disabled = true);
+
+  if (idx === q.correct) {
+    btns[idx].classList.add('correct');
+    score++;
+    if (q.cat === 'files') filesScore++;
+    else internetScore++;
+    feedback.className = 'feedback-box correct show';
+    feedbackIcon.textContent = '✅';
+    feedbackText.textContent = `Świetnie! ${q.explanation}`;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.correct].classList.add('correct');
+    feedback.className = 'feedback-box wrong show';
+    feedbackIcon.textContent = '❌';
+    feedbackText.textContent = `Niestety nie. ${q.explanation}`;
+  }
+
+  document.getElementById('score-display').textContent = `⭐ ${score} pkt`;
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.className = 'btn-next show';
+  nextBtn.textContent = currentQ < shuffledQuestions.length - 1 ? 'Następne pytanie ➡️' : 'Zobacz wyniki 🎉';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= shuffledQuestions.length) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResults() {
+  show('screen-score');
+  const total = shuffledQuestions.length;
+  const pct = score / total;
+
+  document.getElementById('score-big').textContent = `${score}/${total}`;
+  document.getElementById('files-score').textContent = `${filesScore}/10`;
+  document.getElementById('internet-score').textContent = `${internetScore}/10`;
+
+  let trophy, title, msg;
+
+  if (pct >= 0.9) {
+    trophy = '🏆'; title = 'Mistrz Informatyki!';
+    msg = '🌟 Niesamowity wynik! Doskonale znasz pliki, katalogi i bezpieczeństwo w sieci. Tak trzymaj!';
+  } else if (pct >= 0.7) {
+    trophy = '🥇'; title = 'Świetna robota!';
+    msg = '😊 Bardzo dobry wynik! Masz solidną wiedzę. Przejrzyj pytania, na które odpowiedziałeś źle i wróć do tematu.';
+  } else if (pct >= 0.5) {
+    trophy = '🥈'; title = 'Dobry wynik!';
+    msg = '👍 Dobry start! Znasz podstawy, ale warto powtórzyć materiał o plikach i katalogach. Spróbuj jeszcze raz!';
+  } else {
+    trophy = '📚'; title = 'Czas na naukę!';
+    msg = '💪 Nie martw się – każdy kiedyś zaczyna! Powtórz materiał o plikach, folderach i bezpieczeństwie w sieci, a potem wróć i pokaż co potrafisz!';
+  }
+
+  document.getElementById('trophy').textContent = trophy;
+  document.getElementById('score-title').textContent = title;
+  document.getElementById('medal-msg').textContent = msg;
+
+  if (pct >= 0.7) launchConfetti();
+}
+
+function restartQuiz() {
+  const fresh = shuffle(questions);
+  shuffledQuestions.length = 0;
+  fresh.forEach(q => shuffledQuestions.push(q));
+  startQuiz();
+}
+
+function launchConfetti() {
+  const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff9f43', '#a29bfe'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -20px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${2 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 1}s;
+        transform: rotate(${Math.random() * 360}deg);
+        width: ${8 + Math.random() * 8}px;
+        height: ${10 + Math.random() * 10}px;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 50);
+  }
+}
+</script>
+</body>
+</html>
